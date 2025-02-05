@@ -70,7 +70,16 @@ The difference between {s} and {b} is how they capture strings.
 {s} makes a function expect a value of type `*[]u8`. It will copy the captured string into this slice and change it's length to match the length of the captured string.  
 Example of use:
 ```
-//TODO provide example
+var buf:[100]u8 = undefined;
+var name:[]u8 = buf[0..50];
+var surname:[]u8 = buf[50..];
+
+const input = "John Doe";
+
+try bufScanOut("{s} {s}", input, .{&name, &surname});
+
+std.debug.assert(std.mem.eql(u8, name, "John"));
+std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 ```
 {s} works similarly to how "%s" works in C.  
 
@@ -79,11 +88,17 @@ when used with 'bufScan', {b} will make it return a slice of the original buffer
 when used with 'bufScanOut', {b} will make it expect a value of type `*[]const u8` and will put into it a slice of the original buffer that contains the captured string.  
 Example of use:
 ```
-//TODO provide example
+var name: []const u8 = undefined;
+var surname: []const u8 = undefined;
+
+const input = "John Doe";
+
+try bufScanOut("{b} {b}", input, .{&name, &surname});
+
+std.debug.assert(std.mem.eql(u8, name, "John"));
+std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 ```
 {b} is named like this because it only works with ***B***uffers.
-
-
 
 ### Misc. stuff
 
@@ -94,6 +109,8 @@ Example of use:
 * unlike functions in libc, functions provided in this package do not return the number of successfully parsed arguments.
 
 * unlike functions in libc, The "fmt" parameter to any of the functions provided here has to be comptime-known.
+
+* for more examples of use check out src/zig-scan.zig test suite.
 
 ## Version History
 
