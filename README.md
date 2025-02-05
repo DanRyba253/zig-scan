@@ -59,8 +59,8 @@ To use '{' or '}' as normal characters instead of escape characters, repeat them
 By default both {s} and {b} capture and consume all consecutive non-whitespace characters.  
 ***Note: unlike in C, {s} and {b} do not consume leading or trailing whitespace.***  
 You can add any character at the end to signify a "terminator" character. For example:  
-{s,} captures all consecutive characters until it reaches a comma or EOF
-{b#} captures all consecutive characters until it reaches a hash or EOF
+{s,} captures all consecutive characters until it reaches a comma or EOF   
+{b#} captures all consecutive characters until it reaches a hash or EOF   
 ***Note: when used this way, the "terminator" character is consumed from input, but isn't captured***
 
 ### What's the difference between {s} and {b}?
