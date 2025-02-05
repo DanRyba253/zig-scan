@@ -67,6 +67,24 @@ pub fn scanOut(
             }
         },
         .fmt_spec => |fmt_spec| switch (fmt_spec) {
+            .unicode => {
+                buf[0] = peeker.readByte() orelse return error.EOF;
+
+                const byte_count = std.unicode.utf8ByteSequenceLength(buf[0]) catch {
+                    return error.UnicodeError;
+                };
+
+                for (1..byte_count) |i| {
+                    buf[i] = peeker.readByte() orelse return error.EOF;
+                }
+
+                const codepoint = std.unicode.utf8Decode(buf[0..byte_count]) catch {
+                    return error.UnicodeError;
+                };
+
+                out[out_idx].* = codepoint;
+                out_idx += 1;
+            },
             inline .int, .float => |spec| {
                 const is_float = @typeInfo(spec.type) == .Float;
                 var expect_dot = is_float;
@@ -208,6 +226,27 @@ pub fn bufScanOut(
             buf_ = buf_[len..];
         },
         .fmt_spec => |fmt_spec| switch (fmt_spec) {
+            .unicode => {
+                if (buf_.len == 0) {
+                    return error.EOF;
+                }
+
+                const byte_count = std.unicode.utf8ByteSequenceLength(buf_[0]) catch {
+                    return error.UnicodeError;
+                };
+
+                if (buf_.len < byte_count) {
+                    return error.EOF;
+                }
+
+                const codepoint = std.unicode.utf8Decode(buf_[0..byte_count]) catch {
+                    return error.UnicodeError;
+                };
+
+                out[out_idx].* = codepoint;
+                out_idx += 1;
+                buf_ = buf_[byte_count..];
+            },
             inline .int, .float => |spec| {
                 const is_float = @typeInfo(spec.type) == .Float;
                 var expect_dot = is_float;
@@ -789,16 +828,18 @@ test "bufScan usize base" {
     try expectEq(21, r[0]);
 }
 
-test "bufScan {_}" {
+test "bufScanOut {_}" {
     const buf = "   name";
-    const r = try bufScan("{_}{b}", buf);
 
-    try expectEq(r.len, 1);
-    try expect(@TypeOf(r[0]) == []const u8);
-    try expectEqSl(u8, "name", r[0]);
+    var arr: [1024]u8 = undefined;
+    var slice: []u8 = &arr;
+
+    try bufScanOut("{_}{b}", buf, .{&slice});
+
+    try expectEqSl(u8, "name", slice);
 }
 
-test "scan {_}" {
+test "scanOut {_}" {
     const buf = "   name";
     var fbs = getFbs(buf);
     const reader = fbs.reader();
@@ -809,4 +850,92 @@ test "scan {_}" {
     try scanOut(1024, "{_}{s}", reader, .{&slice});
 
     try expectEqSl(u8, "name", slice);
+}
+
+test "scanOut {u} 1" {
+    const buf = "\u{40}";
+    var fbs = getFbs(buf);
+    const reader = fbs.reader();
+
+    var codepoint: u21 = undefined;
+    try scanOut(1024, "{u}", reader, .{&codepoint});
+
+    try expectEq(1, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x40, codepoint);
+}
+
+test "scanOut {u} 2" {
+    const buf = "\u{80}";
+    var fbs = getFbs(buf);
+    const reader = fbs.reader();
+
+    var codepoint: u21 = undefined;
+    try scanOut(1024, "{u}", reader, .{&codepoint});
+
+    try expectEq(2, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x80, codepoint);
+}
+
+test "scanOut {u} 3" {
+    const buf = "\u{800}";
+    var fbs = getFbs(buf);
+    const reader = fbs.reader();
+
+    var codepoint: u21 = undefined;
+    try scanOut(1024, "{u}", reader, .{&codepoint});
+
+    try expectEq(3, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x800, codepoint);
+}
+
+test "scanOut {u} 4" {
+    const buf = "\u{10000}";
+    var fbs = getFbs(buf);
+    const reader = fbs.reader();
+
+    var codepoint: u21 = undefined;
+    try scanOut(1024, "{u}", reader, .{&codepoint});
+
+    try expectEq(4, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x10000, codepoint);
+}
+
+test "bufScanOut {u} 1" {
+    const buf = "\u{40}";
+
+    var codepoint: u21 = undefined;
+    try bufScanOut("{u}", buf, .{&codepoint});
+
+    try expectEq(1, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x40, codepoint);
+}
+
+test "bufScanOut {u} 2" {
+    const buf = "\u{80}";
+
+    var codepoint: u21 = undefined;
+    try bufScanOut("{u}", buf, .{&codepoint});
+
+    try expectEq(2, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x80, codepoint);
+}
+
+test "bufScanOut {u} 3" {
+    const buf = "\u{800}";
+
+    var codepoint: u21 = undefined;
+    try bufScanOut("{u}", buf, .{&codepoint});
+
+    try expectEq(3, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x800, codepoint);
+}
+
+test "bufScanOut {u} 4" {
+    const buf = "\u{10000}";
+
+    var codepoint: u21 = undefined;
+    try bufScanOut("{u}", buf, .{&codepoint});
+
+    try expectEq(4, try std.unicode.utf8CodepointSequenceLength(codepoint));
+    try expectEq(0x10000, codepoint);
 }

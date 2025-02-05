@@ -25,6 +25,7 @@ pub const FmtSpec = union(enum) {
     char,
     string: StringFmtSpec,
     ws,
+    unicode,
 };
 
 pub const Token = union(enum) {
@@ -103,6 +104,19 @@ pub fn getFmtInfo(comptime fmt: []const u8) FmtInfo {
 
             if (fmt_spec.len == 0) {
                 @compileError("empty format specifier");
+            }
+
+            //unicode
+            if (fmt_spec.len == 1 and fmt_spec[0] == 'u') {
+                return_types[return_type_count] = u21;
+                return_type_count += 1;
+
+                input_types[input_type_count] = *u21;
+                input_type_count += 1;
+
+                tokens[token_count] = .{ .fmt_spec = .unicode };
+                token_count += 1;
+                continue;
             }
 
             // usize
