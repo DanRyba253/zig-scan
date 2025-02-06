@@ -15,7 +15,7 @@ Zig v0.13.0
 
 Run this command in your project directory to fetch this repo and update your build.zig.zon:
 ```
-zig fetch --save https://github.com/DanRyba253/zig-scan/archive/refs/tags/v0.0.0.tar.gz
+zig fetch --save https://github.com/DanRyba253/zig-scan/archive/refs/tags/v0.0.1.tar.gz
 ```
 
 Then, update your build.zig to expose the relevant module to your executable
