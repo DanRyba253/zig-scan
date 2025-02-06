@@ -35,7 +35,7 @@ Then, update your build.zig to expose the relevant module to your executable
 This package provides four functions: `scan`, `scanOut`, `bufScan` and `bufScanOut`  
   
 Functions that start with "buf" parse from a buffer of type `[]const u8`  
-Functions that don't start with "buf" parse from a provided `std.io.Reader`  
+Functions that don't start with "buf" parse from a provided `std.io.AnyReader`  
 Functions that end with "Out" take in a tuple of pointers where they will output parsed values  
 Functions that don't end with "Out" return a tuple of parsed values
 
@@ -51,7 +51,8 @@ To use '{' or '}' as normal characters instead of escape characters, repeat them
 {usize} captues a value of type `usize` written in base 10  
 {usize:b} captures a value of type `usize` written in base b  
 {fN} captures a value of type `fN` written in base 10, N could be equal to 16, 32 or 64  
-{c} captures a single character in a form of a `u8`  
+{c} captures a single character in a form of a `u8`
+{u} captures a unicode codepoint in a form of a `u21`
 {_} consumes all consecutive whitespace characters, but does not capture anything.  
 {s} and {b} specifiers are used to capture strings. They are described more thoroughly below.
 
@@ -104,7 +105,7 @@ std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 
 * `scan` and `scanOut` take an extra comptime parameter called `buf_len` which is used to initialize an internal buffer used to temporarily store reader output. Make sure that `buf_len` > length of any sequence in between format specifiers in your format string. And `buf_len` > length of any part of input captured by format specifiers.
 
-* `scan` and `scanOut` may make a lot of successive calls to the supplied reader, so it is recommended to wrap it in std.io.bufferedReader first for performance.
+* `scan` and `scanOut` may make a lot of successive calls to the supplied reader, so it is recommended to use std.io.bufferedReader for performance.
 
 * unlike functions in libc, functions provided in this package do not return the number of successfully parsed arguments.
 
@@ -116,6 +117,10 @@ std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 
 * 0.0.0
     * Initial Release
+
+* 0.0.1
+    * Added the {u} format specifier
+    * Transitioned to using the std.io.AnyReader interface
 
 ## License
 

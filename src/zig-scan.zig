@@ -4,7 +4,6 @@
 const std = @import("std");
 const fmt_info = @import("fmt_info.zig");
 const peek = @import("peek.zig");
-const interface = @import("interface.zig");
 
 fn eqlHandleEscapes(str: []const u8, lit: []const u8) bool {
     var j: usize = 0;
@@ -40,13 +39,9 @@ fn countEscapes(lit: []const u8) usize {
 pub fn scanOut(
     comptime buf_len: usize,
     comptime fmt: []const u8,
-    reader: anytype,
+    reader: std.io.AnyReader,
     out: fmt_info.getFmtInfo(fmt).input_type,
 ) !void {
-    if (comptime !interface.hasRelevantReaderMethods(@TypeOf(reader))) {
-        @compileError("invalid reader type");
-    }
-
     const info = fmt_info.getFmtInfo(fmt);
 
     if (comptime fmt_info.capturesSlices(info)) {
@@ -382,7 +377,7 @@ test "scan {i32}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{i32}", reader);
+    const r = try scan(1024, "{i32}", reader.any());
 
     try expect(@TypeOf(r[0]) == i32);
     try expectEq(r[0], 123);
@@ -393,7 +388,7 @@ test "scan {i5}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{i5}", reader);
+    const r = try scan(1024, "{i5}", reader.any());
 
     try expect(@TypeOf(r[0]) == i5);
     try expectEq(r[0], 12);
@@ -404,7 +399,7 @@ test "scan {u32}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{u32}", reader);
+    const r = try scan(1024, "{u32}", reader.any());
 
     try expect(@TypeOf(r[0]) == u32);
     try expectEq(r[0], 123);
@@ -415,7 +410,7 @@ test "scan {u5}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{u5}", reader);
+    const r = try scan(1024, "{u5}", reader.any());
 
     try expect(@TypeOf(r[0]) == u5);
     try expectEq(12, r[0]);
@@ -426,7 +421,7 @@ test "scan {i32} negative" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{i32}", reader);
+    const r = try scan(1024, "{i32}", reader.any());
 
     try expect(@TypeOf(r[0]) == i32);
     try expectEq(-123, r[0]);
@@ -437,7 +432,7 @@ test "scan {i32:2} negative" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{i32:2}", reader);
+    const r = try scan(1024, "{i32:2}", reader.any());
 
     try expect(@TypeOf(r[0]) == i32);
     try expectEq(-21, r[0]);
@@ -448,7 +443,7 @@ test "scan {u32} negative expect-error" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    try expectErr(error.InvalidCharacter, scan(1024, "{u32}", reader));
+    try expectErr(error.InvalidCharacter, scan(1024, "{u32}", reader.any()));
 }
 
 test "scan {f16}" {
@@ -456,7 +451,7 @@ test "scan {f16}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{f16}", reader);
+    const r = try scan(1024, "{f16}", reader.any());
 
     try expect(@TypeOf(r[0]) == f16);
     try expectEq(123.0, r[0]);
@@ -467,7 +462,7 @@ test "scan {f32}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{f32}", reader);
+    const r = try scan(1024, "{f32}", reader.any());
 
     try expect(@TypeOf(r[0]) == f32);
     try expectEq(123.0, r[0]);
@@ -478,7 +473,7 @@ test "scan {f64}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{f64}", reader);
+    const r = try scan(1024, "{f64}", reader.any());
 
     try expect(@TypeOf(r[0]) == f64);
     try expectEq(123.0, r[0]);
@@ -489,7 +484,7 @@ test "scan {f16} fractional" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{f16}", reader);
+    const r = try scan(1024, "{f16}", reader.any());
 
     try expect(@TypeOf(r[0]) == f16);
     try expectEq(123.5, r[0]);
@@ -500,7 +495,7 @@ test "scan {f16} negative" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{f16}", reader);
+    const r = try scan(1024, "{f16}", reader.any());
 
     try expect(@TypeOf(r[0]) == f16);
     try expectEq(-123.0, r[0]);
@@ -511,7 +506,7 @@ test "scan {c}" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{c}", reader);
+    const r = try scan(1024, "{c}", reader.any());
 
     try expect(@TypeOf(r[0]) == u8);
     try expectEq(r[0], 'a');
@@ -522,7 +517,7 @@ test "scan buf_len" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(3, "{i32}", reader);
+    const r = try scan(3, "{i32}", reader.any());
 
     try expect(@TypeOf(r[0]) == i32);
     try expectEq(123, r[0]);
@@ -533,7 +528,7 @@ test "scan combinations" {
     var fbs = getFbs(buf);
     const reader = fbs.reader();
 
-    const r = try scan(1024, "{u32}_{f64}__{c}___{f64}____{i32}", reader);
+    const r = try scan(1024, "{u32}_{f64}__{c}___{f64}____{i32}", reader.any());
 
     try expect(@TypeOf(r[0]) == u32);
     try expect(@TypeOf(r[1]) == f64);
@@ -674,7 +669,7 @@ test "scanOut {s}" {
     var arr: [1024]u8 = undefined;
     var slice: []u8 = &arr;
 
-    try scanOut(1024, "{s}", reader, .{&slice});
+    try scanOut(1024, "{s}", reader.any(), .{&slice});
 
     try expectEqSl(u8, "123", slice);
 }
@@ -687,7 +682,7 @@ test "scanOut {s} padding" {
     var arr: [1024]u8 = undefined;
     var slice: []u8 = &arr;
 
-    try scanOut(1024, "__{s} ***", reader, .{&slice});
+    try scanOut(1024, "__{s} ***", reader.any(), .{&slice});
 
     try expectEqSl(u8, "123", slice);
 }
@@ -773,7 +768,7 @@ test "scanOut combinations {s}" {
     var e: []u8 = &arr;
     var f: []u8 = arr[500..];
 
-    try scanOut(1024, "{u8}_{f64}_{f64}_{c}_{s_}{s}", reader, .{ &a, &b, &c, &d, &e, &f });
+    try scanOut(1024, "{u8}_{f64}_{f64}_{c}_{s_}{s}", reader.any(), .{ &a, &b, &c, &d, &e, &f });
 
     try expectEq(12, a);
     try expectEq(0.5, b);
@@ -847,7 +842,7 @@ test "scanOut {_}" {
     var arr: [1024]u8 = undefined;
     var slice: []u8 = &arr;
 
-    try scanOut(1024, "{_}{s}", reader, .{&slice});
+    try scanOut(1024, "{_}{s}", reader.any(), .{&slice});
 
     try expectEqSl(u8, "name", slice);
 }
@@ -858,7 +853,7 @@ test "scanOut {u} 1" {
     const reader = fbs.reader();
 
     var codepoint: u21 = undefined;
-    try scanOut(1024, "{u}", reader, .{&codepoint});
+    try scanOut(1024, "{u}", reader.any(), .{&codepoint});
 
     try expectEq(1, try std.unicode.utf8CodepointSequenceLength(codepoint));
     try expectEq(0x40, codepoint);
@@ -870,7 +865,7 @@ test "scanOut {u} 2" {
     const reader = fbs.reader();
 
     var codepoint: u21 = undefined;
-    try scanOut(1024, "{u}", reader, .{&codepoint});
+    try scanOut(1024, "{u}", reader.any(), .{&codepoint});
 
     try expectEq(2, try std.unicode.utf8CodepointSequenceLength(codepoint));
     try expectEq(0x80, codepoint);
@@ -882,7 +877,7 @@ test "scanOut {u} 3" {
     const reader = fbs.reader();
 
     var codepoint: u21 = undefined;
-    try scanOut(1024, "{u}", reader, .{&codepoint});
+    try scanOut(1024, "{u}", reader.any(), .{&codepoint});
 
     try expectEq(3, try std.unicode.utf8CodepointSequenceLength(codepoint));
     try expectEq(0x800, codepoint);
@@ -894,7 +889,7 @@ test "scanOut {u} 4" {
     const reader = fbs.reader();
 
     var codepoint: u21 = undefined;
-    try scanOut(1024, "{u}", reader, .{&codepoint});
+    try scanOut(1024, "{u}", reader.any(), .{&codepoint});
 
     try expectEq(4, try std.unicode.utf8CodepointSequenceLength(codepoint));
     try expectEq(0x10000, codepoint);
