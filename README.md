@@ -48,11 +48,11 @@ To use '{' or '}' as normal characters instead of escape characters, repeat them
 {iN:b} captures a value of type `iN` written in base b  
 {uN} captures a value of type `uN` written in base 10  
 {uN:b} captures a value of type `uN` written in base b  
-{usize} captues a value of type `usize` written in base 10  
+{usize} captures a value of type `usize` written in base 10  
 {usize:b} captures a value of type `usize` written in base b  
 {fN} captures a value of type `fN` written in base 10, N could be equal to 16, 32 or 64  
-{c} captures a single character in a form of a `u8`
-{u} captures a unicode codepoint in a form of a `u21`
+{c} captures a single character in a form of a `u8`  
+{u} captures a unicode codepoint in a form of a `u21`  
 {_} consumes all consecutive whitespace characters, but does not capture anything.  
 {s} and {b} specifiers are used to capture strings. They are described more thoroughly below.
 
