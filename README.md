@@ -125,6 +125,7 @@ std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 * 0.14.0
     * Ported to Zig 0.14
     * Eliminated the dependency on 'find' for test generation
+    * Changed the name of the repo, package and main module from zig-scan to zig_scan
 
 ## License
 
