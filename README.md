@@ -1,4 +1,4 @@
-# zig-scan
+# zig_scan
 
 Formatted input functions for zig
 
@@ -15,7 +15,7 @@ Zig 0.14
 
 Run this command in your project directory to fetch this repo and update your build.zig.zon:
 ```
-zig fetch --save https://github.com/DanRyba253/zig-scan/archive/refs/tags/v0.0.1.tar.gz
+zig fetch --save https://github.com/DanRyba253/zig_scan/archive/refs/tags/v0.14.0.tar.gz
 ```
 
 Then, update your build.zig to expose the relevant module to your executable
@@ -111,7 +111,7 @@ std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 
 * unlike functions in libc, The "fmt" parameter to any of the functions provided here has to be comptime-known.
 
-* for more examples of use check out src/zig-scan.zig test suite.
+* for more examples of use check out src/zig_scan.zig test suite.
 
 ## Version History
 
