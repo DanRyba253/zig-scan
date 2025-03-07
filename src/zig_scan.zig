@@ -81,9 +81,9 @@ pub fn scanOut(
                 out_idx += 1;
             },
             inline .int, .float => |spec| {
-                const is_float = @typeInfo(spec.type) == .Float;
+                const is_float = @typeInfo(spec.type) == .float;
                 var expect_dot = is_float;
-                var expect_minus = is_float or @typeInfo(spec.type).Int.signedness == .signed;
+                var expect_minus = is_float or @typeInfo(spec.type).int.signedness == .signed;
                 var i: usize = 0;
 
                 while (peeker.readByte()) |byte| : (i += 1) {
@@ -243,9 +243,9 @@ pub fn bufScanOut(
                 buf_ = buf_[byte_count..];
             },
             inline .int, .float => |spec| {
-                const is_float = @typeInfo(spec.type) == .Float;
+                const is_float = @typeInfo(spec.type) == .float;
                 var expect_dot = is_float;
-                var expect_minus = is_float or @typeInfo(spec.type).Int.signedness == .signed;
+                var expect_minus = is_float or @typeInfo(spec.type).int.signedness == .signed;
                 var i: usize = 0;
 
                 while (i < buf_.len) : (i += 1) {
@@ -712,7 +712,7 @@ test "bufScanOut {s} padding" {
 test "bufScanOut {b}" {
     const buf = " 123 ";
 
-    var slice: []u8 = undefined;
+    var slice: []const u8 = undefined;
 
     try bufScanOut(" {b} ", buf, .{&slice});
 
@@ -787,7 +787,7 @@ test "bufScanOut combinations {s}" {
     var d: u8 = undefined;
     var arr: [1024]u8 = undefined;
     var e: []u8 = &arr;
-    var f: []u8 = undefined;
+    var f: []const u8 = undefined;
 
     try bufScanOut("{u8}_{f64}_{f64}_{c}_{s_}{b_}", buf, .{ &a, &b, &c, &d, &e, &f });
 
@@ -827,7 +827,7 @@ test "bufScanOut {_}" {
     const buf = "   name";
 
     var arr: [1024]u8 = undefined;
-    var slice: []u8 = &arr;
+    var slice: []const u8 = &arr;
 
     try bufScanOut("{_}{b}", buf, .{&slice});
 

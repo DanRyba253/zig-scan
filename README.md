@@ -9,7 +9,7 @@ Created mostly for my personal ergonomics when doing AoC
 
 ## Dependencies
 
-Zig v0.13.0
+Zig 0.14
 
 ## Getting Started
 
@@ -20,12 +20,12 @@ zig fetch --save https://github.com/DanRyba253/zig-scan/archive/refs/tags/v0.0.1
 
 Then, update your build.zig to expose the relevant module to your executable
 ```
-    const zig_scan = b.dependency("zig-scan", .{
+    const zig_scan = b.dependency("zig_scan", .{
         .target = target,
         .optimize = optimize,
     });
-    const module = zig_scan.module("zig-scan");
-    exe.root_module.addImport("zig-scan", module);
+    const module = zig_scan.module("zig_scan");
+    exe_mod.addImport("zig_scan", module);
 ```
 
 ## Documentation
@@ -121,6 +121,10 @@ std.debug.assert(std.mem.eql(u8, surname, "Doe"));
 * 0.0.1
     * Added the {u} format specifier
     * Transitioned to using the std.io.AnyReader interface
+
+* 0.14.0
+    * Ported to Zig 0.14
+    * Eliminated the dependency on 'find' for test generation
 
 ## License
 

@@ -1,6 +1,6 @@
 .{
-    .name = "zig-scan",
-    .version = "0.0.1",
+    .name = .zig_scan,
+    .version = "0.14.0",
     .dependencies = .{},
     .paths = .{
         "build.zig",
@@ -8,4 +8,5 @@
         "src",
         "LICENSE",
     },
+    .fingerprint = 0xcd9504dd7d45334,
 }

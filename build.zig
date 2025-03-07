@@ -7,8 +7,8 @@ pub fn build(b: *std.Build) void {
     // build options for the library
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    _ = b.addModule("zig-scan", .{
-        .root_source_file = b.path(src_dir ++ "/zig-scan.zig"),
+    _ = b.addModule("zig_scan", .{
+        .root_source_file = b.path(src_dir ++ "/zig_scan.zig"),
     });
 
     // try to generate test step
